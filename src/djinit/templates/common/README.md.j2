@@ -1,0 +1,59 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+# Install dependencies
+pdm install
+
+# Copy environment file and configure
+cp .env .env.local
+
+# Run migrations
+pdm run migrate
+
+# Create superuser
+pdm run createsu
+
+# Start development server
+pdm run startdev 8000
+```
+
+## Commands
+
+```bash
+# Package management (PDM)
+pdm install                          # Install dependencies
+
+# Development
+pdm run startdev 8000                # Run development server
+pdm run makemigrations               # Create migrations
+pdm run migrate                      # Apply migrations
+pdm run createsu                     # Create superuser
+
+# Testing
+pdm run pytest                       # Run all tests
+
+# Linting
+pdm run lint-check                   # Run black --check + pylint
+
+# Celery (local development)
+celery -A main worker -l info
+celery -A main beat -l info
+
+# Static files
+pdm run collectstatic
+```
+
+## Architecture
+
+- **`main/`** -- Django project settings, root URL conf, Celery config, WSGI/ASGI entry points.
+- **`base/`** -- Shared utilities: `TimeStampMixin` model, DI container, pagination, Celery task status endpoint.
+
+## Stack
+
+- Python {{ python_version }}, Django {{ django_version }}, DRF {{ drf_version }}
+- PostgreSQL, Celery (SQS broker / Django-db results backend), S3 storage
+- JWT auth via `djangorestframework-simplejwt`

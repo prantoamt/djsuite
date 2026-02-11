@@ -1,0 +1,7 @@
+"""Celery task status constants."""
+
+PENDING = "PENDING"
+FAILED = "FAILED"
+COMPLETED = "COMPLETED"
+IN_PROGRESS = "IN_PROGRESS"
+RETRY = "RETRY"

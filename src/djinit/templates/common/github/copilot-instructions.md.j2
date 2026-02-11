@@ -1,0 +1,60 @@
+# Copilot Custom Instructions for {{ project_name }}
+
+{{ description }}
+
+## General Guidelines
+
+* Follow the existing code style and structure.
+* Use descriptive variable, function, and class names.
+* Write clear, concise **docstrings** for all modules, classes, and functions.
+* Add comments where necessary to explain complex logic.
+* Prefer explicit over implicit code.
+* Use environment variables and settings from Django's `settings.py` for configuration.
+* **Never hardcode** URLs, secrets, magic numbers, or credentials.
+* Favor readability and maintainability over cleverness.
+
+---
+
+## Python/Django Specific
+
+* Use Django's ORM and built-in utilities where possible.
+* Never use function base views; always use class-based views.
+* Place business logic in **models or services**, not directly in views.
+* Use serializers for API data validation and transformation.
+* Write tests for **all new features and bug fixes**.
+* Use `settings.<SETTING_NAME>` for all environment-dependent values.
+
+---
+
+## Testing
+
+* Use **pytest** with **pytest-django** and DRF's **APIClient**.
+* Put tests under `tests/` inside each app.
+* File names start with `test_*.py`; test function names start with `test_`.
+* Use **behavior-driven names**: `test_<unit_or_endpoint>_when_<condition>_then_<expected_result>`
+
+### Fixtures & setup
+
+* Put reusable fixtures in `conftest.py`.
+* Use factories to keep setup minimal and explicit.
+
+### Database usage
+
+* Mark DB tests with `@pytest.mark.django_db`.
+
+### DRF / URL usage
+
+* Resolve URLs with `reverse`.
+* Use `APIClient` for requests and always assert status codes.
+
+---
+
+## Commit Messages
+
+* Follow [Conventional Commits](https://www.conventionalcommits.org/) format.
+* Use a **scope** to indicate the module/domain.
+* Examples:
+  * `fix(user): prevent duplicate signup when email exists`
+  * `feat(base): add new service endpoint`
+
+---

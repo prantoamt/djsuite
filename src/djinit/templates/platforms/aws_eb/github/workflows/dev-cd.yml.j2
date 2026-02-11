@@ -1,0 +1,234 @@
+name: Deploy To Dev (ECR -> Elastic Beanstalk with Versioning)
+
+on:
+  push:
+    branches: [development]
+  workflow_dispatch:
+
+concurrency:
+  group: eb-backend-dev-{% raw %}${{ github.ref }}{% endraw %}
+
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: {% raw %}${{ secrets.AWS_REGION }}{% endraw %}
+
+  ACCOUNT_ID: {% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
+
+  ECR_REPO: {{ project_name }}
+  EB_APP: Dev
+  S3_BUCKET: elasticbeanstalk-{% raw %}${{ secrets.AWS_REGION }}{% endraw %}-{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
+
+  PLATFORM_ENV: api-dev
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  draft_release:
+    name: Compute next version (Release Drafter)
+    runs-on: ubuntu-latest
+    outputs:
+      tag: "{% raw %}${{ steps.draft.outputs.tag_name }}{% endraw %}"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: draft
+        uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+
+
+  build_and_publish:
+    name: Build image & create EB app version (once)
+    runs-on: ubuntu-latest
+    needs: [draft_release]
+    outputs:
+      version_label: {% raw %}${{ steps.meta.outputs.version_label }}{% endraw %}
+
+      zip_key: {% raw %}${{ steps.meta.outputs.zip_key }}{% endraw %}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: {% raw %}${{ env.AWS_REGION }}{% endraw %}
+
+          role-to-assume: arn:aws:iam::{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}:role/GHA-EB-Deploy
+          role-session-name: gha-eb-api
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq zip
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tags and version label
+        id: meta
+        run: |
+          REG="{% raw %}${{ steps.ecr.outputs.registry }}{% endraw %}"
+          IMAGE="${REG}/{% raw %}${{ env.ECR_REPO }}{% endraw %}"
+          TAG="{% raw %}${{ env.PLATFORM_ENV }}{% endraw %}-{% raw %}${{ needs.draft_release.outputs.tag }}{% endraw %}"
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            TAG="{% raw %}${{ env.PLATFORM_ENV }}{% endraw %}-sha-${GITHUB_SHA::7}"
+          fi
+          VERSION_LABEL="${TAG}-build-${GITHUB_RUN_NUMBER}"
+          ZIP_KEY="{{ project_name }}-${VERSION_LABEL}.zip"
+          echo "image_primary=${IMAGE}:${VERSION_LABEL}" >> $GITHUB_OUTPUT
+          echo "version_label=${VERSION_LABEL}" >> $GITHUB_OUTPUT
+          echo "zip_key=${ZIP_KEY}" >> $GITHUB_OUTPUT
+          echo "Using VERSION_LABEL=${VERSION_LABEL}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          use: true
+
+      - name: Build & push image to ECR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            {% raw %}${{ steps.meta.outputs.image_primary }}{% endraw %}
+
+          build-args: |
+            GH_TOKEN={% raw %}${{ secrets.GH_TOKEN }}{% endraw %}
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Render Dockerrun & bundle hooks
+        run: |
+          set -e
+          IMAGE="{% raw %}${{ steps.meta.outputs.image_primary }}{% endraw %}"
+          BUNDLE_DIR="$(mktemp -d)"
+          OUT_ZIP="{% raw %}${{ github.workspace }}{% endraw %}/{% raw %}${{ steps.meta.outputs.zip_key }}{% endraw %}"
+          # Render Dockerrun
+          sed "s|\${IMAGE}|$IMAGE|g" infra/Dockerrun.aws.json.tmpl > "${BUNDLE_DIR}/Dockerrun.aws.json"
+          jq . "${BUNDLE_DIR}/Dockerrun.aws.json" > "${BUNDLE_DIR}/Dockerrun.clean.json" && mv "${BUNDLE_DIR}/Dockerrun.clean.json" "${BUNDLE_DIR}/Dockerrun.aws.json"
+          # Include hooks/configs
+          if [ -d ".platform" ]; then
+            cp -a .platform "${BUNDLE_DIR}/.platform"
+            find "${BUNDLE_DIR}/.platform" -type f -name "*.sh" -exec chmod +x {} +
+          fi
+          if [ -d ".ebextensions" ]; then
+            cp -a .ebextensions "${BUNDLE_DIR}/.ebextensions"
+          fi
+          ( cd "${BUNDLE_DIR}"; zip -r "$OUT_ZIP" Dockerrun.aws.json $( [ -d ".platform" ] && echo ".platform" ) $( [ -d ".ebextensions" ] && echo ".ebextensions" ) >/dev/null )
+          echo "Bundle: $OUT_ZIP"
+
+      - name: Upload bundle to S3
+        run: |
+          aws s3 cp "{% raw %}${{ steps.meta.outputs.zip_key }}{% endraw %}" \
+            "s3://{% raw %}${{ env.S3_BUCKET }}{% endraw %}/{% raw %}${{ steps.meta.outputs.zip_key }}{% endraw %}" \
+            --region "{% raw %}${{ env.AWS_REGION }}{% endraw %}"
+
+      - name: Create EB application version (idempotent)
+        run: |
+          set -e
+          LABEL="{% raw %}${{ steps.meta.outputs.version_label }}{% endraw %}"
+          KEY="{% raw %}${{ steps.meta.outputs.zip_key }}{% endraw %}"
+          EXISTS=$(aws elasticbeanstalk describe-application-versions \
+            --region "{% raw %}${{ env.AWS_REGION }}{% endraw %}" \
+            --application-name "{% raw %}${{ env.EB_APP }}{% endraw %}" \
+            --version-labels "$LABEL" \
+            --query 'length(ApplicationVersions)' --output text)
+          if [[ "$EXISTS" -eq 0 ]]; then
+            aws elasticbeanstalk create-application-version \
+              --region "{% raw %}${{ env.AWS_REGION }}{% endraw %}" \
+              --application-name "{% raw %}${{ env.EB_APP }}{% endraw %}" \
+              --version-label "$LABEL" \
+              --source-bundle S3Bucket={% raw %}${{ env.S3_BUCKET }}{% endraw %},S3Key="${KEY}"
+          else
+            echo "EB app version $LABEL already exists — skipping create."
+          fi
+
+  deploy_to_envs:
+    name: Deploy to EB envs
+    runs-on: ubuntu-latest
+    needs: [build_and_publish]
+    strategy:
+      matrix:
+        env_name: [api-dev, worker-dev]
+    steps:
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: {% raw %}${{ env.AWS_REGION }}{% endraw %}
+
+          role-to-assume: arn:aws:iam::{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}:role/GHA-EB-Deploy
+          role-session-name: gha-eb-api
+
+      - name: Update EB env if version differs
+        run: |
+          set -e
+          ENV_NAME="{% raw %}${{ matrix.env_name }}{% endraw %}"
+          TARGET="{% raw %}${{ needs.build_and_publish.outputs.version_label }}{% endraw %}"
+
+          CURRENT=$(aws elasticbeanstalk describe-environments \
+            --environment-names "$ENV_NAME" \
+            --query 'Environments[0].VersionLabel' --output text)
+
+          echo "Env: $ENV_NAME | Current=${CURRENT} | Target=${TARGET}"
+
+          if [ "$CURRENT" = "$TARGET" ]; then
+            echo "Version already deployed; skipping update."
+            exit 0
+          fi
+
+          for attempt in 1 2 3; do
+            set +e
+            aws elasticbeanstalk update-environment \
+              --environment-name "$ENV_NAME" \
+              --version-label "$TARGET"
+            RC=$?
+            set -e
+            if [ $RC -eq 0 ]; then
+              echo "Update initiated."
+              break
+            fi
+            echo "update-environment failed (attempt $attempt). Retrying in 10s..."
+            sleep 10
+          done
+          if [ $RC -ne 0 ]; then
+            echo "Failed to call update-environment after retries."
+            exit 1
+          fi
+
+      - name: Wait for EB environment to be Ready
+        timeout-minutes: 20
+        run: |
+          set -e
+          ENV_NAME="{% raw %}${{ matrix.env_name }}{% endraw %}"
+          TARGET="{% raw %}${{ needs.build_and_publish.outputs.version_label }}{% endraw %}"
+          for i in {1..120}; do
+            DESC=$(aws elasticbeanstalk describe-environments --environment-names "$ENV_NAME")
+            STATUS=$(echo "$DESC" | jq -r '.Environments[0].Status')
+            HEALTH=$(echo "$DESC" | jq -r '.Environments[0].Health')
+            VERSION=$(echo "$DESC" | jq -r '.Environments[0].VersionLabel')
+            echo "[$i] $ENV_NAME -> Status=$STATUS | Health=$HEALTH | Version=$VERSION (target=$TARGET)"
+            if [ "$STATUS" = "Ready" ] && [ "$VERSION" = "$TARGET" ]; then
+              echo "Environment is Ready on target version."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for Ready status on $ENV_NAME"
+          exit 1
+
+      - name: Best-effort health summary
+        continue-on-error: true
+        run: |
+          ENV_NAME="{% raw %}${{ matrix.env_name }}{% endraw %}"
+          aws elasticbeanstalk describe-environments \
+            --environment-names "$ENV_NAME" \
+            --query 'Environments[0].[EnvironmentName,Health,HealthStatus,Status,EndpointURL,VersionLabel]' --output table

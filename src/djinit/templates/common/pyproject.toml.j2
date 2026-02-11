@@ -1,0 +1,124 @@
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+authors = [
+    {name = "{{ author }}"},
+]
+dependencies = [
+"Django=={{ django_version }}.*",
+"django-environ>=0.12.0",
+"psycopg2-binary>=2.9.10",
+"djangorestframework=={{ drf_version }}.*",
+"dj-rest-auth>=7.0.1",
+"drf-spectacular>=0.28.0",
+{% if platform == "aws-eb" -%}
+"celery[sqs]>=5.5.3",
+{% else -%}
+"celery>=5.5.3",
+{% endif -%}
+"redis>=6.4.0",
+"django-celery-results>=2.6.0",
+"django-celery-beat>=2.8.1",
+"django-cors-headers>=4.7.0",
+"gunicorn>=23.0.0",
+"djangorestframework-simplejwt>=5.5.0",
+"dependency-injector>=4.48.2",
+{% if platform == "aws-eb" -%}
+"django-storages>=1.14.6",
+"boto3>=1.40.65",
+{% endif -%}
+"drf-standardized-errors>=0.15.0",
+"factory-boy>=3.3.3",
+"django-filter>=25.2",
+]
+
+requires-python = "=={{ python_version }}.*"
+readme = "README.md"
+license = {text = "Other"}
+
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "black>=25.1.0",
+    "pylint>=3.2.0",
+    "pylint-django==2.6.1"
+]
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+lint-check = { composite = [
+  "black --check .",
+  "pylint ."
+] }
+collectstatic = "python manage.py collectstatic --no-input"
+makemigrations = "python manage.py makemigrations"
+migrate = "python manage.py migrate"
+createsu = "python manage.py createsu"
+startdev = "python manage.py runserver {args}"
+startprod = "gunicorn main.wsgi:application --preload --bind 0.0.0.0:{args} --workers=4 -t 600"
+
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "main.settings"
+pythonpath = ["."]
+testpaths = [
+"tests",
+]
+markers = [
+    "integration: mark a test as an integration test.",
+    "unit: mark a test as a unit test.",
+]
+
+[tool.black]
+line-length = 140
+
+[tool.pylint]
+ignore = [
+".venv",
+"venv",
+"**/.venv/**",
+"*.egg-info",
+"__pycache__",
+"migrations",
+"**/migrations/**",
+"static",
+"manage.py",
+"tasks.py",
+]
+init-hook = '''
+import os
+import sys
+sys.path.append(os.getcwd())
+os.environ['DJANGO_SETTINGS_MODULE'] = 'main.settings'
+'''
+# Load plugins for Django support
+load-plugins = ["pylint_django"]
+max-line-length = 140
+disable = [
+    "C0114",  # missing module docstring
+    "C0115",  # missing class docstring
+    "R0903",  # too few public methods
+    "W0511",  # flagging TODOs
+    "R0801",  # similar files
+    "R0911",  # Too many return statements
+    "R0914",  # Too many local variables
+    "R0917",  # Too many positional arguments
+    "R0913",  # Too many arguments
+    "W0108",  # Unnecessary lambda
+    "W0621",  # Redefined outer name pytest fixtures commonly look like this
+    "E5110"   # Django not configured (false positive for service modules)
+]
+
+[tool.isort]
+profile = "black"
+line_length = 90
+[dependency-groups]
+dev = [
+    "pytest-django>=4.11.1",
+    "isort>=5.12.0",
+]

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "djinit"
+version = "0.1.0"
+description = "Django project scaffolding CLI with CFAI standard template structure"
+requires-python = ">=3.10"
+dependencies = ["jinja2>=3.1"]
+
+[project.scripts]
+djinit = "djinit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+djinit = ["templates/**/*"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-tmp-files>=0.0.2"]
