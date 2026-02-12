@@ -2,58 +2,113 @@
 
 {{ description }}
 
-## Setup
+## Quick Start
 
 ```bash
+# Start Postgres and Redis
+docker compose up -d
+
 # Install dependencies
 pdm install
 
-# Copy environment file and configure
-cp .env .env.local
+# Configure environment
+cp .env .env.local   # edit .env.local with your settings
 
-# Run migrations
+# Set up pre-commit hooks
+pdm run setup-hooks
+
+# Run migrations and create superuser
 pdm run migrate
-
-# Create superuser
 pdm run createsu
 
 # Start development server
 pdm run startdev 8000
 ```
 
-## Commands
+API docs available at [http://localhost:8000/schema/swagger/](http://localhost:8000/schema/swagger/) (DEBUG mode only).
 
-```bash
-# Package management (PDM)
-pdm install                          # Install dependencies
+## Scripts
 
-# Development
-pdm run startdev 8000                # Run development server
-pdm run makemigrations               # Create migrations
-pdm run migrate                      # Apply migrations
-pdm run createsu                     # Create superuser
-
-# Testing
-pdm run pytest                       # Run all tests
-
-# Linting
-pdm run lint-check                   # Run black --check + pylint
-
-# Celery (local development)
-celery -A main worker -l info
-celery -A main beat -l info
-
-# Static files
-pdm run collectstatic
-```
+| Command | Description |
+|---------|-------------|
+| `pdm run startdev 8000` | Run development server |
+| `pdm run pytest` | Run tests with coverage (80% threshold) |
+| `pdm run lint-check` | Run black + isort + pylint |
+| `pdm run format` | Auto-format with black + isort |
+| `pdm run setup-hooks` | Install pre-commit hooks |
+| `pdm run makemigrations` | Create database migrations |
+| `pdm run migrate` | Apply database migrations |
+| `pdm run createsu` | Create superuser from env vars |
+| `pdm run collectstatic` | Collect static files |
 
 ## Architecture
 
-- **`main/`** -- Django project settings, root URL conf, Celery config, WSGI/ASGI entry points.
-- **`base/`** -- Shared utilities: `TimeStampMixin` model, DI container, pagination, Celery task status endpoint.
+### Project Layout
+
+- **`main/`** -- Django project config: settings, root URLs, Celery app, WSGI/ASGI.
+- **`base/`** -- Shared foundation: models, services, DI container, pagination, constants.
+- **`tests/`** -- Integration and cross-app tests.
+- **`<app>/tests/`** -- Per-app unit tests (e.g., `base/tests/`).
+
+### Patterns
+
+**Service layer** -- Business logic lives in `<app>/services/`, not in views or serializers. Views handle HTTP concerns, serializers handle validation, services handle everything else.
+
+```
+View (HTTP) --> Serializer (validation) --> Service (logic) --> Model (data)
+```
+
+**Dependency injection** -- Services are wired through `base/containers.py` using `dependency-injector`. Views receive services via injection rather than direct instantiation. This makes testing straightforward -- inject mocks instead of patching.
+
+**Error handling** -- `drf-standardized-errors` is configured globally as the DRF exception handler. Raise standard DRF exceptions (`ValidationError`, `NotFound`, `PermissionDenied`, etc.) and they'll be returned in a consistent format. Never return ad-hoc error dicts.
+
+**Health check** -- `/health/` returns 200 if the database is reachable, 503 otherwise. Nginx also exposes `/healthz` (returns 200 without hitting Django, used by load balancers).
+
+### Adding a New App
+
+```bash
+# 1. Create the app
+pdm run python manage.py startapp users
+
+# 2. Create test directory
+mkdir users/tests && touch users/tests/__init__.py
+
+# 3. Add to SELF_APPS in main/settings.py
+SELF_APPS = ["base", "users"]
+
+# 4. Add to testpaths in pyproject.toml
+testpaths = ["tests", "base", "users"]
+
+# 5. Wire URLs in main/urls.py
+path("users/", include("users.urls")),
+```
+
+## Deployment Flow
+
+```
+feat-branch --> PR (auto-labeled) --> development --> main
+                                          |              |
+                                      Dev deploy    Prod deploy
+                                      Draft release  Publish release
+                                                     Update CHANGELOG.md
+```
+
+1. Create a branch with a conventional prefix (`feat-`, `fix-`, `breaking-`, `chore-`, `docs-`).
+2. Open a PR to `development` -- a label is applied automatically from the branch prefix.
+3. Merge to `development` -- deploys to dev, creates a draft GitHub release with auto-generated notes grouped by label.
+4. Merge to `main` -- deploys to production, publishes the release, and updates `CHANGELOG.md`.
+
+No manual release steps. Branch naming drives everything.
 
 ## Stack
 
 - Python {{ python_version }}, Django {{ django_version }}, DRF {{ drf_version }}
-- PostgreSQL, Celery (SQS broker / Django-db results backend), S3 storage
-- JWT auth via `djangorestframework-simplejwt`
+- PostgreSQL, Redis
+{% if platform == "aws-eb" -%}
+- Celery (SQS broker), S3 storage, AWS Elastic Beanstalk
+{% else -%}
+- Celery (Redis broker)
+{% endif -%}
+- JWT auth (`djangorestframework-simplejwt`)
+- API docs (`drf-spectacular`)
+- CI/CD via GitHub Actions
