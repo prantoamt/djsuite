@@ -248,7 +248,8 @@ templates/
 | Secret | Description |
 |--------|-------------|
 | `AWS_ACCOUNT_ID` | Your 12-digit AWS account ID |
-| `AWS_REGION` | Deployment region (e.g. `eu-central-1`) |
+| `DEV_AWS_REGION` | Dev deployment region (e.g. `eu-central-1`) |
+| `PROD_AWS_REGION` | Prod deployment region (e.g. `eu-central-1`) |
 
 The CD workflows authenticate via **OIDC federation** — no static AWS keys. Create an IAM role named `GHA-EB-Deploy` with Elastic Beanstalk, ECR, and S3 permissions, and configure its trust policy for GitHub Actions.
 

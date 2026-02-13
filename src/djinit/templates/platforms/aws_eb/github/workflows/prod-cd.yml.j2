@@ -13,13 +13,13 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  AWS_REGION: {% raw %}${{ secrets.AWS_REGION }}{% endraw %}
+  AWS_REGION: {% raw %}${{ secrets.PROD_AWS_REGION }}{% endraw %}
 
   ACCOUNT_ID: {% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
 
   ECR_REPO: {{ project_name }}
   EB_APP: Prod
-  S3_BUCKET: elasticbeanstalk-{% raw %}${{ secrets.AWS_REGION }}{% endraw %}-{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
+  S3_BUCKET: elasticbeanstalk-{% raw %}${{ secrets.PROD_AWS_REGION }}{% endraw %}-{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
 
   PLATFORM_ENV: api-prod
 
