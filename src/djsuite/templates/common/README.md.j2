@@ -138,7 +138,7 @@ All app configuration is via environment variables. See `.env` for local default
 | `CELERY_BROKER_URL` | Redis URL for Celery broker |
 {% endif -%}
 | `SUPERUSER_EMAIL`, `SUPERUSER_PASSWORD` | Auto-created superuser credentials |
-| `ACCESS_TOKEN_LIFETIME_MINUTES` | JWT access token lifetime (default: 60) |
+| `ACCESS_TOKEN_LIFETIME_MINUTES` | JWT access token lifetime (default: 5) |
 | `REFRESH_TOKEN_LIFETIME_MINUTES` | JWT refresh token lifetime (default: 1440) |
 | `SECURE_SSL_REDIRECT` | Auto-enabled in production (`DEBUG=False`) |
 {% if platform == "aws-eb" %}

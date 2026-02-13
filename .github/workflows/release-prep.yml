@@ -31,7 +31,7 @@ jobs:
 
           # Skip if this push is the merge of a release prep PR
           COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" == *"release/v"* ]]; then
+          if [[ "$COMMIT_MSG" == *"release/v"* ]] || [[ "$COMMIT_MSG" == *"release: v"* ]]; then
             echo "Skipping: commit is a release PR merge"
             echo "should_run=false" >> "$GITHUB_OUTPUT"
             exit 0
