@@ -13,3 +13,4 @@ venv/
 *.so
 .tox/
 CLAUDE.md
+.pdm-python
