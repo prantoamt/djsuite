@@ -38,7 +38,7 @@ readme = "README.md"
 license = {text = "Other"}
 
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 lint = [
     "black>=25.1.0",
     "isort>=5.12.0",
@@ -47,8 +47,10 @@ lint = [
     "pre-commit>=4.0.0",
 ]
 test = [
+    "pytest-django>=4.11.1",
     "pytest-cov>=6.0",
 ]
+dev = [{include-group = "lint"}, {include-group = "test"}]
 
 
 [tool.pdm]
@@ -130,8 +132,3 @@ disable = [
 [tool.isort]
 profile = "black"
 line_length = 140
-[dependency-groups]
-dev = [
-    "pytest-django>=4.11.1",
-    "isort>=5.12.0",
-]
