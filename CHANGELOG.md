@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.5 (2026-02-13)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Bug Fixes
+* Fix error no tests ran process completed with exit code 5 by @prantoamt in https://github.com/prantoamt/djsuite/pull/12
+
+
+**Full Changelog**: https://github.com/prantoamt/djsuite/compare/v0.0.4...v0.0.5
+
 ## v0.0.4 (2026-02-13)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
