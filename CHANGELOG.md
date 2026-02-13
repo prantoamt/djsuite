@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.3 (2026-02-13)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Maintenance
+* Chore update pipeline by @prantoamt in https://github.com/prantoamt/djsuite/pull/6
+
+
+**Full Changelog**: https://github.com/prantoamt/djsuite/compare/v0.0.2...v0.0.3
+
 ## v0.0.2 (2026-02-13)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

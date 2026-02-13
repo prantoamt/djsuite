@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "djsuite"
-version = "0.0.2"
+version = "0.0.3"
 description = "Production-ready Django project scaffolding in one command"
 requires-python = ">=3.10"
 license = {text = "MIT"}
