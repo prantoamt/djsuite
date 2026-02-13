@@ -18,7 +18,7 @@ env:
   ACCOUNT_ID: {% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
 
   ECR_REPO: {{ project_name }}
-  EB_APP: Prod
+  EB_APP: {{ project_name }}
   S3_BUCKET: elasticbeanstalk-{% raw %}${{ secrets.PROD_AWS_REGION }}{% endraw %}-{% raw %}${{ secrets.AWS_ACCOUNT_ID }}{% endraw %}
 
   PLATFORM_ENV: api-prod
