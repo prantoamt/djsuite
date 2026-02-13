@@ -127,7 +127,7 @@ cython_debug/
 # Visual Studio Code
 # .vscode/
 
-# djinit backups
-.djinit-backup/
+# djsuite backups
+.djsuite-backup/
 
 staticfiles/

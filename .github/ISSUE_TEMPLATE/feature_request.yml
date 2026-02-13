@@ -15,7 +15,7 @@ body:
       label: Proposed Solution
       description: How should it work? Include CLI examples if applicable.
       placeholder: |
-        djinit myproject --platform docker
+        djsuite myproject --platform docker
   - type: textarea
     id: alternatives
     attributes:

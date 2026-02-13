@@ -1,6 +1,6 @@
 <div align="center">
 
-# djinit
+# djsuite
 
 **Production-ready Django project scaffolding in one command.**
 
@@ -8,7 +8,7 @@ Generates a fully-configured Django + DRF project with Docker, CI/CD,
 Celery, PostgreSQL, and cloud deployment — so you ship features on day one,
 not boilerplate.
 
-[![PyPI](https://img.shields.io/pypi/v/djinit?color=blue)](https://pypi.org/project/djinit/)
+[![PyPI](https://img.shields.io/pypi/v/djsuite?color=blue)](https://pypi.org/project/djsuite/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
 [![Django 5.x](https://img.shields.io/badge/django-5.x-092E20?logo=django&logoColor=white)](https://djangoproject.com)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -17,13 +17,13 @@ not boilerplate.
 
 ---
 
-## Why djinit?
+## Why djsuite?
 
 Every production Django project needs the same foundation: DRF, JWT auth,
 Celery workers, PostgreSQL, Docker, CI/CD pipelines, and deployment config.
 Setting this up by hand takes hours and inevitably drifts between projects.
 
-**djinit solves this.** One command generates ~50 files with a proven
+**djsuite solves this.** One command generates ~50 files with a proven
 structure — and when the template evolves, `--update-*` flags push changes
 to existing projects without touching your custom code.
 
@@ -32,26 +32,26 @@ to existing projects without touching your custom code.
 ## Install
 
 ```bash
-pip install djinit
+pip install djsuite
 ```
 
 Or with [pipx](https://pipx.pypa.io/) (recommended for CLI tools):
 
 ```bash
-pipx install djinit
+pipx install djsuite
 ```
 
 ## Quick Start
 
 ```bash
 # Create a new project
-djinit myproject --description "Payments API"
+djsuite myproject --description "Payments API"
 
 # Preview what would be created
-djinit myproject --dry-run
+djsuite myproject --dry-run
 
 # List all generated files
-djinit --list-files
+djsuite --list-files
 ```
 
 ```
@@ -100,7 +100,7 @@ Next steps:
 
 ```
 myproject/
-├── .djinit.json                      # djinit metadata (for update mode)
+├── .djsuite.json                      # djsuite metadata (for update mode)
 ├── .env                              # Environment variables
 ├── .pre-commit-config.yaml           # black + isort hooks
 ├── docker-compose.yml                # Postgres + Redis for local dev
@@ -148,7 +148,7 @@ myproject/
 ### Create Mode
 
 ```bash
-djinit <project_name> [OPTIONS]
+djsuite <project_name> [OPTIONS]
 ```
 
 | Option | Default | Description |
@@ -168,15 +168,15 @@ Push template improvements to an existing project **without overwriting your
 custom code** (`main/` and `base/` are never touched by updates).
 
 ```bash
-djinit --update-ci --project-dir ./myproject       # CI/CD workflows
-djinit --update-docker --project-dir ./myproject    # Docker files
-djinit --update-infra --project-dir ./myproject     # Infrastructure files
-djinit --update-all --project-dir ./myproject       # Everything updatable
-djinit --update-all --no-backup --project-dir ./myproject  # Skip backup
+djsuite --update-ci --project-dir ./myproject       # CI/CD workflows
+djsuite --update-docker --project-dir ./myproject    # Docker files
+djsuite --update-infra --project-dir ./myproject     # Infrastructure files
+djsuite --update-all --project-dir ./myproject       # Everything updatable
+djsuite --update-all --no-backup --project-dir ./myproject  # Skip backup
 ```
 
-Before overwriting, djinit shows a diff summary and creates a timestamped
-backup in `.djinit-backup/`:
+Before overwriting, djsuite shows a diff summary and creates a timestamped
+backup in `.djsuite-backup/`:
 
 ```
 Updating 4 file(s) in /home/you/myproject:
@@ -185,7 +185,7 @@ Updating 4 file(s) in /home/you/myproject:
   [UNCHANGED]                      .github/workflows/dev-cd.yml
   [NEW]                            .github/copilot-instructions.md
 
-Backed up 1 file(s) to .djinit-backup/20250211_143022
+Backed up 1 file(s) to .djsuite-backup/20250211_143022
 Updated 2 file(s).
 ```
 
@@ -209,7 +209,7 @@ Updated 2 file(s).
 | Azure App Service | `azure` | Planned |
 | Bare Docker / Compose | `docker` | Planned |
 
-The platform is stored in `.djinit.json`, so `--update-*` commands
+The platform is stored in `.djsuite.json`, so `--update-*` commands
 automatically use the correct platform. See [Contributing](CONTRIBUTING.md)
 for how to add a new platform.
 
@@ -234,8 +234,8 @@ templates/
 
 1. **Manifest** merges common + platform files into a single file map
 2. **Renderer** processes `.j2` files through Jinja2, copies static files verbatim
-3. **Generator** writes rendered files, sets `+x` on scripts, writes `.djinit.json`, runs `pdm lock`
-4. **Updater** reads `.djinit.json`, re-renders selected groups, shows diffs, creates backups
+3. **Generator** writes rendered files, sets `+x` on scripts, writes `.djsuite.json`, runs `pdm lock`
+4. **Updater** reads `.djsuite.json`, re-renders selected groups, shows diffs, creates backups
 
 ---
 

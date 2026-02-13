@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from djinit.generator import generate
-from djinit.manifest import UpdateGroup
-from djinit.updater import run_update
+from djsuite.generator import generate
+from djsuite.manifest import UpdateGroup
+from djsuite.updater import run_update
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ class TestRunUpdate:
             no_backup=False,
         )
         assert result == 0
-        backup_dir = generated_project / ".djinit-backup"
+        backup_dir = generated_project / ".djsuite-backup"
         assert backup_dir.exists()
 
     def test_update_no_backup_flag(self, generated_project, capsys):
@@ -80,7 +80,7 @@ class TestRunUpdate:
             groups={UpdateGroup.CI},
             no_backup=True,
         )
-        backup_dir = generated_project / ".djinit-backup"
+        backup_dir = generated_project / ".djsuite-backup"
         assert not backup_dir.exists()
 
     def test_update_docker_files(self, generated_project, capsys):
@@ -104,7 +104,7 @@ class TestRunUpdate:
         )
         assert result == 0
 
-    def test_error_without_djinit_json(self, tmp_path, capsys):
+    def test_error_without_djsuite_json(self, tmp_path, capsys):
         (tmp_path / "noproject").mkdir()
         result = run_update(
             str(tmp_path / "noproject"),
@@ -112,7 +112,7 @@ class TestRunUpdate:
         )
         assert result == 1
         captured = capsys.readouterr()
-        assert ".djinit.json" in captured.out
+        assert ".djsuite.json" in captured.out
 
     def test_update_all_groups(self, generated_project, capsys):
         # Modify files in multiple groups
@@ -142,8 +142,8 @@ class TestRunUpdate:
         assert "[NEW]" in captured.out
 
     def test_backwards_compat_no_platform_key(self, generated_project, capsys):
-        """Existing projects without 'platform' in .djinit.json default to aws-eb."""
-        config_path = generated_project / ".djinit.json"
+        """Existing projects without 'platform' in .djsuite.json default to aws-eb."""
+        config_path = generated_project / ".djsuite.json"
         config = json.loads(config_path.read_text())
         del config["platform"]
         config_path.write_text(json.dumps(config, indent=2) + "\n")

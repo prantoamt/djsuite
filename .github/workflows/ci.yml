@@ -24,7 +24,7 @@ jobs:
       - name: Install PDM
         run: pip install pdm
 
-      - name: Install djinit with dev deps
+      - name: Install djsuite with dev deps
         run: pip install -e ".[dev]"
 
       - name: Run tests with coverage

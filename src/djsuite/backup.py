@@ -17,7 +17,7 @@ def backup_files(project_dir, files_to_update):
     """
     project_path = Path(project_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_dir = project_path / ".djinit-backup" / timestamp
+    backup_dir = project_path / ".djsuite-backup" / timestamp
 
     backed_up = []
     for rel_path in files_to_update:

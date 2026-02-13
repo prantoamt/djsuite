@@ -7,13 +7,13 @@ import stat
 import subprocess
 from pathlib import Path
 
-from djinit.manifest import get_manifest
-from djinit.renderer import render_all
+from djsuite.manifest import get_manifest
+from djsuite.renderer import render_all
 
 
 def generate(context, output_dir=".", platform=None):
     """Generate a new Django project."""
-    from djinit.manifest import Platform
+    from djsuite.manifest import Platform
     if platform is None:
         platform = Platform.AWS_EB
 
@@ -36,15 +36,15 @@ def generate(context, output_dir=".", platform=None):
             full_path.chmod(full_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         print(f"  created {output_path}")
 
-    # Write .djinit.json config file
+    # Write .djsuite.json config file
     config = {
-        "djinit_version": "0.1.0",
+        "djsuite_version": "0.1.0",
         "platform": platform.value,
         **context,
     }
-    config_path = project_path / ".djinit.json"
+    config_path = project_path / ".djsuite.json"
     config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
-    print(f"  created .djinit.json")
+    print(f"  created .djsuite.json")
 
     # Run pdm lock to pin dependency versions
     if shutil.which("pdm"):
@@ -74,7 +74,7 @@ def generate(context, output_dir=".", platform=None):
 
 def dry_run(context, output_dir=".", platform=None):
     """Show what files would be generated without writing anything."""
-    from djinit.manifest import Platform
+    from djsuite.manifest import Platform
     if platform is None:
         platform = Platform.AWS_EB
 
@@ -89,6 +89,6 @@ def dry_run(context, output_dir=".", platform=None):
     for _key, (output_path, _group) in sorted(manifest.items(), key=lambda item: item[1][0]):
         print(f"  {output_path}")
 
-    print(f"  .djinit.json")
+    print(f"  .djsuite.json")
     print(f"\nTotal: {len(manifest) + 1} files")
     return 0

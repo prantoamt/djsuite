@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in djinit
+description: Report a bug in djsuite
 labels: ["bug"]
 body:
   - type: textarea
@@ -15,7 +15,7 @@ body:
       label: Steps to Reproduce
       description: Minimal command or steps to trigger the bug.
       placeholder: |
-        djinit myproject --platform aws-eb
+        djsuite myproject --platform aws-eb
     validations:
       required: true
   - type: textarea
@@ -27,8 +27,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: djinit version
-      description: Output of `djinit --version`
+      label: djsuite version
+      description: Output of `djsuite --version`
     validations:
       required: true
   - type: input

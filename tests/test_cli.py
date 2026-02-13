@@ -4,7 +4,7 @@ import getpass
 
 import pytest
 
-from djinit.cli import build_parser, main, _valid_project_name
+from djsuite.cli import build_parser, main, _valid_project_name
 
 
 class TestProjectNameValidation:

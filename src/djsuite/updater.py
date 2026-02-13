@@ -5,22 +5,22 @@ import os
 import stat
 from pathlib import Path
 
-from djinit.backup import backup_files
-from djinit.diff import diff_summary
-from djinit.manifest import Platform, files_for_groups
-from djinit.renderer import render_all
+from djsuite.backup import backup_files
+from djsuite.diff import diff_summary
+from djsuite.manifest import Platform, files_for_groups
+from djsuite.renderer import render_all
 
 
 def _load_context(project_dir):
-    """Load project context and platform from .djinit.json.
+    """Load project context and platform from .djsuite.json.
 
     Returns:
         (context_dict, Platform) tuple, or (None, None) on error.
     """
-    config_path = Path(project_dir) / ".djinit.json"
+    config_path = Path(project_dir) / ".djsuite.json"
     if not config_path.exists():
-        print(f"Error: {config_path} not found. Is this a djinit project?")
-        print("Run 'djinit <project_name>' first to create a project.")
+        print(f"Error: {config_path} not found. Is this a djsuite project?")
+        print("Run 'djsuite <project_name>' first to create a project.")
         return None, None
 
     with open(config_path) as f:

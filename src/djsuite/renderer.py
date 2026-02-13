@@ -7,7 +7,7 @@ import jinja2
 
 def _get_template_dir():
     """Get the path to the templates directory."""
-    return importlib.resources.files("djinit") / "templates"
+    return importlib.resources.files("djsuite") / "templates"
 
 
 def create_environment():

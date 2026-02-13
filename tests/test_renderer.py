@@ -2,8 +2,8 @@
 
 import pytest
 
-from djinit.renderer import render_template, render_all, create_environment
-from djinit.manifest import Platform, get_manifest
+from djsuite.renderer import render_template, render_all, create_environment
+from djsuite.manifest import Platform, get_manifest
 
 
 @pytest.fixture

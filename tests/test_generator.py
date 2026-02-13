@@ -6,8 +6,8 @@ import stat
 
 import pytest
 
-from djinit.generator import generate, dry_run
-from djinit.manifest import Platform
+from djsuite.generator import generate, dry_run
+from djsuite.manifest import Platform
 
 
 @pytest.fixture
@@ -30,14 +30,14 @@ class TestGenerate:
         assert project_dir.exists()
         assert project_dir.is_dir()
 
-    def test_creates_djinit_json(self, tmp_path, context):
+    def test_creates_djsuite_json(self, tmp_path, context):
         generate(context, str(tmp_path))
-        config_path = tmp_path / "testproject" / ".djinit.json"
+        config_path = tmp_path / "testproject" / ".djsuite.json"
         assert config_path.exists()
         config = json.loads(config_path.read_text())
         assert config["project_name"] == "testproject"
         assert config["python_version"] == "3.12"
-        assert config["djinit_version"] == "0.1.0"
+        assert config["djsuite_version"] == "0.1.0"
         assert config["platform"] == "aws-eb"
 
     def test_creates_key_files(self, tmp_path, context):
@@ -214,7 +214,7 @@ class TestDryRun:
         captured = capsys.readouterr()
         assert "manage.py" in captured.out
         assert "main/settings.py" in captured.out
-        assert ".djinit.json" in captured.out
+        assert ".djsuite.json" in captured.out
         assert "Total:" in captured.out
 
     def test_does_not_create_files(self, tmp_path, context):

@@ -1,11 +1,11 @@
-"""CLI entry point for djinit."""
+"""CLI entry point for djsuite."""
 
 import argparse
 import getpass
 import sys
 
-from djinit import __version__
-from djinit.manifest import Platform, UpdateGroup, get_manifest
+from djsuite import __version__
+from djsuite.manifest import Platform, UpdateGroup, get_manifest
 
 
 def _valid_project_name(value):
@@ -20,7 +20,7 @@ def _valid_project_name(value):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        prog="djinit",
+        prog="djsuite",
         description="Production-ready Django project scaffolding in one command.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -90,7 +90,7 @@ def main(argv=None):
     update_groups = _get_update_groups(args)
 
     if update_groups:
-        from djinit.updater import run_update
+        from djsuite.updater import run_update
         return run_update(
             project_dir=args.project_dir,
             groups=update_groups,
@@ -111,10 +111,10 @@ def main(argv=None):
     }
 
     if args.dry_run:
-        from djinit.generator import dry_run
+        from djsuite.generator import dry_run
         dry_run(context, args.output_dir, platform)
         return 0
 
-    from djinit.generator import generate
+    from djsuite.generator import generate
     generate(context, args.output_dir, platform)
     return 0

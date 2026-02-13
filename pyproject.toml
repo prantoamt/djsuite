@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "djinit"
+name = "djsuite"
 version = "0.1.0"
 description = "Production-ready Django project scaffolding in one command"
 requires-python = ">=3.10"
@@ -30,23 +30,23 @@ classifiers = [
 dependencies = ["jinja2>=3.1"]
 
 [project.urls]
-Homepage = "https://github.com/prantoamt/djinit"
-Repository = "https://github.com/prantoamt/djinit"
-Issues = "https://github.com/prantoamt/djinit/issues"
-Changelog = "https://github.com/prantoamt/djinit/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/prantoamt/djsuite"
+Repository = "https://github.com/prantoamt/djsuite"
+Issues = "https://github.com/prantoamt/djsuite/issues"
+Changelog = "https://github.com/prantoamt/djsuite/blob/main/CHANGELOG.md"
 
 [project.scripts]
-djinit = "djinit.cli:main"
+djsuite = "djsuite.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-djinit = ["templates/**/*"]
+djsuite = ["templates/**/*"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "pytest-tmp-files>=0.0.2", "pytest-cov>=4.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=djinit --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=djsuite --cov-report=term-missing --cov-fail-under=80"

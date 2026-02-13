@@ -10,4 +10,4 @@
 
 - [ ] All existing tests pass (`pytest`)
 - [ ] Added/updated tests for new behavior
-- [ ] Generated a project and verified output (`djinit testproject --dry-run`)
+- [ ] Generated a project and verified output (`djsuite testproject --dry-run`)
