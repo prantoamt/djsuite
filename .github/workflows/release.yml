@@ -6,10 +6,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  id-token: write
-  pull-requests: read
+permissions: {}
 
 jobs:
   release:
@@ -19,6 +16,10 @@ jobs:
        startsWith(github.event.pull_request.head.ref, 'release/v'))
     runs-on: ubuntu-latest
     environment: pypi
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:

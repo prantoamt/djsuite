@@ -78,4 +78,4 @@ class TestRenderAll:
             # Skip Dockerrun.aws.json.tmpl which uses ${IMAGE} (shell var, not jinja)
             if "Dockerrun" in path:
                 continue
-            assert "{{ " not in content or "{%" not in content, f"Unrendered Jinja2 in {path}"
+            assert "{{ " not in content and "{%" not in content, f"Unrendered Jinja2 in {path}"
