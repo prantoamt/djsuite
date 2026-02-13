@@ -1,0 +1,150 @@
+name: Release Prep
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard — skip if release PR merge or already open
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Always run on workflow_dispatch
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Skip if this push is the merge of a release prep PR
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" == *"release/v"* ]]; then
+            echo "Skipping: commit is a release PR merge"
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+
+      - name: Compute next semver from PR labels
+        if: steps.guard.outputs.should_run == 'true'
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
+          MINOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f2)
+          PATCH=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f3)
+
+          # Get labels from PRs merged since last tag
+          SINCE=$(git log -1 --format=%aI "$LATEST" 2>/dev/null || echo "2000-01-01")
+          LABELS=$(gh pr list --state merged --base main \
+            --json mergedAt,labels \
+            --jq "[.[] | select(.mergedAt >= \"$SINCE\") | .labels[].name] | unique | .[]" 2>/dev/null || echo "")
+
+          BUMP="patch"
+          if echo "$LABELS" | grep -q "breaking"; then
+            BUMP="major"
+          elif echo "$LABELS" | grep -q "feature"; then
+            BUMP="minor"
+          fi
+
+          case "$BUMP" in
+            major) NEXT="v$((MAJOR + 1)).0.0" ;;
+            minor) NEXT="v${MAJOR}.$((MINOR + 1)).0" ;;
+            patch) NEXT="v${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+          esac
+
+          echo "tag=${NEXT}" >> "$GITHUB_OUTPUT"
+          echo "version=${NEXT#v}" >> "$GITHUB_OUTPUT"
+          echo "Bump: ${BUMP} | ${LATEST} -> ${NEXT}"
+
+      - name: Check if release PR already exists
+        if: steps.guard.outputs.should_run == 'true'
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          EXISTING=$(gh pr list --head "release/${TAG}" --state open --json number --jq 'length')
+          if [[ "$EXISTING" -gt 0 ]]; then
+            echo "Release PR for ${TAG} already exists, skipping"
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update version files
+        if: steps.guard.outputs.should_run == 'true' && steps.check-pr.outputs.should_run == 'true'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          sed -i "s/^__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/djsuite/__init__.py
+
+      - name: Generate changelog entry
+        if: steps.guard.outputs.should_run == 'true' && steps.check-pr.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          DATE=$(date +%Y-%m-%d)
+          LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          # Generate release notes preview without creating a release
+          if [[ -n "$LATEST" ]]; then
+            BODY=$(gh api repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="${TAG}" \
+              -f previous_tag_name="${LATEST}" \
+              -f target_commitish="main" \
+              --jq '.body' 2>/dev/null || echo "")
+          else
+            BODY=$(gh api repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="${TAG}" \
+              -f target_commitish="main" \
+              --jq '.body' 2>/dev/null || echo "")
+          fi
+
+          ENTRY=$(printf "## %s (%s)\n\n%s\n" "$TAG" "$DATE" "$BODY")
+
+          if [ -f CHANGELOG.md ]; then
+            HEAD=$(head -1 CHANGELOG.md)
+            TAIL=$(tail -n +2 CHANGELOG.md)
+            printf "%s\n\n%s\n%s\n" "$HEAD" "$ENTRY" "$TAIL" > CHANGELOG.md
+          else
+            printf "# Changelog\n\n%s\n" "$ENTRY" > CHANGELOG.md
+          fi
+
+      - name: Create release branch and PR
+        if: steps.guard.outputs.should_run == 'true' && steps.check-pr.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          BRANCH="release/${TAG}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add pyproject.toml src/djsuite/__init__.py CHANGELOG.md
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "release: ${TAG}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "release: ${TAG}" \
+            --body "Automated version bump and changelog update for ${TAG}." \
+            --base main \
+            --head "$BRANCH"
