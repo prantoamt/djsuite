@@ -1,0 +1,32 @@
+name: Auto-label PR
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR from branch prefix
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          PREFIX="${BRANCH%%-*}"
+          case "$PREFIX" in
+            feat|feature)  LABEL="feature" ;;
+            fix|bugfix)    LABEL="fix" ;;
+            breaking)      LABEL="breaking" ;;
+            chore)         LABEL="chore" ;;
+            docs)          LABEL="documentation" ;;
+            *)             LABEL="" ;;
+          esac
+          if [ -n "$LABEL" ]; then
+            gh pr edit "${{ github.event.pull_request.number }}" \
+              --repo "${{ github.repository }}" \
+              --add-label "$LABEL"
+          fi

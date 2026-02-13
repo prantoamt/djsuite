@@ -45,4 +45,8 @@ where = ["src"]
 djinit = ["templates/**/*"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0", "pytest-tmp-files>=0.0.2"]
+dev = ["pytest>=7.0", "pytest-tmp-files>=0.0.2", "pytest-cov>=4.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=djinit --cov-report=term-missing --cov-fail-under=80"

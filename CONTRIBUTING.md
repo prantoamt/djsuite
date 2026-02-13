@@ -54,9 +54,21 @@ src/djinit/
 4. Add `{% if platform == "<value>" %}` blocks to mixed templates (`settings.py.j2`, `pyproject.toml.j2`, `dotenv.j2`) if needed.
 5. Add tests for the new platform.
 
+### Branch Naming
+
+Use conventional prefixes — PRs are auto-labeled and drive semver bumps:
+
+| Prefix | Label | Version Bump |
+|--------|-------|-------------|
+| `feat-` | feature | minor |
+| `fix-` | fix | patch |
+| `breaking-` | breaking | major |
+| `chore-` | chore | patch |
+| `docs-` | documentation | patch |
+
 ### Pull Request Process
 
-1. Fork the repo and create a branch from `main`.
+1. Fork the repo and create a branch from `main` (e.g. `feat-azure-platform`).
 2. Make your changes.
 3. Ensure all tests pass (`pytest`).
 4. Open a PR with a clear description of what changed and why.

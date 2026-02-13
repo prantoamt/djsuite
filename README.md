@@ -255,6 +255,21 @@ The CD workflows authenticate via **OIDC federation** — no static AWS keys. Cr
 
 ---
 
+## Releasing
+
+1. Trigger the **Release** workflow manually via GitHub Actions (`workflow_dispatch`)
+2. The workflow computes the next semver from PR labels since the last tag:
+   - `breaking` label → **major** bump
+   - `feature` label → **minor** bump
+   - `fix`, `chore`, `docs` → **patch** bump
+3. Tests run, package is built and published to PyPI
+4. A GitHub release is created with categorized notes
+5. `pyproject.toml`, `__init__.py`, and `CHANGELOG.md` are updated automatically
+
+Requires [PyPI trusted publishing](https://docs.pypi.org/trusted-publishers/) configured for this repository.
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, project
