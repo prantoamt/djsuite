@@ -40,6 +40,7 @@ COMMON_MANIFEST = {
     "pre-commit-config.yaml": (".pre-commit-config.yaml", UpdateGroup.ROOT),
     "manage.py": ("manage.py", UpdateGroup.ROOT),
     "conftest.py.j2": ("conftest.py", UpdateGroup.ROOT),
+    "static/gitkeep": ("static/.gitkeep", UpdateGroup.ROOT),
     # CI (.github/)
     "github/copilot-instructions.md.j2": (".github/copilot-instructions.md", UpdateGroup.CI),
     "github/PULL_REQUEST_TEMPLATE.md": (".github/PULL_REQUEST_TEMPLATE.md", UpdateGroup.CI),
