@@ -7,6 +7,21 @@
 ## What's Changed
 ### Maintenance
 * chore: split release workflow, add linting and copilot instructions by @prantoamt in https://github.com/prantoamt/djsuite/pull/2
+### Other
+* release: v0.0.2 by @github-actions[bot] in https://github.com/prantoamt/djsuite/pull/3
+
+## New Contributors
+* @github-actions[bot] made their first contribution in https://github.com/prantoamt/djsuite/pull/3
+
+**Full Changelog**: https://github.com/prantoamt/djsuite/compare/v0.0.1...v0.0.2
+
+## v0.0.2 (2026-02-13)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Maintenance
+* chore: split release workflow, add linting and copilot instructions by @prantoamt in https://github.com/prantoamt/djsuite/pull/2
 
 
 **Full Changelog**: https://github.com/prantoamt/djsuite/compare/v0.0.1...v0.0.2
