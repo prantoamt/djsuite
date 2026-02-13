@@ -2,8 +2,8 @@
 
 import pytest
 
-from djsuite.renderer import render_template, render_all, create_environment
 from djsuite.manifest import Platform, get_manifest
+from djsuite.renderer import create_environment, render_all, render_template
 
 
 @pytest.fixture
@@ -78,6 +78,4 @@ class TestRenderAll:
             # Skip Dockerrun.aws.json.tmpl which uses ${IMAGE} (shell var, not jinja)
             if "Dockerrun" in path:
                 continue
-            assert "{{ " not in content or "{%" not in content, (
-                f"Unrendered Jinja2 in {path}"
-            )
+            assert "{{ " not in content or "{%" not in content, f"Unrendered Jinja2 in {path}"

@@ -1,7 +1,6 @@
 """Selective update of files in existing projects."""
 
 import json
-import os
 import stat
 from pathlib import Path
 
@@ -66,11 +65,7 @@ def run_update(project_dir, groups, no_backup=False):
         print(f"  {status:30s} {output_path}")
 
     # Filter out unchanged files
-    files_to_write = {
-        path: content
-        for path, content in rendered.items()
-        if statuses[path] != "[UNCHANGED]"
-    }
+    files_to_write = {path: content for path, content in rendered.items() if statuses[path] != "[UNCHANGED]"}
 
     if not files_to_write:
         print("\nAll files are up to date.")

@@ -4,7 +4,7 @@ import getpass
 
 import pytest
 
-from djsuite.cli import build_parser, main, _valid_project_name
+from djsuite.cli import _valid_project_name, build_parser, main
 
 
 class TestProjectNameValidation:
@@ -44,17 +44,26 @@ class TestBuildParser:
 
     def test_create_mode_custom_flags(self):
         parser = build_parser()
-        args = parser.parse_args([
-            "myapp",
-            "--python-version", "3.13",
-            "--django-version", "5.3",
-            "--drf-version", "3.17",
-            "--author", "Nao Intelligence",
-            "--description", "My API",
-            "--output-dir", "/tmp",
-            "--dry-run",
-            "--platform", "aws-eb",
-        ])
+        args = parser.parse_args(
+            [
+                "myapp",
+                "--python-version",
+                "3.13",
+                "--django-version",
+                "5.3",
+                "--drf-version",
+                "3.17",
+                "--author",
+                "Nao Intelligence",
+                "--description",
+                "My API",
+                "--output-dir",
+                "/tmp",
+                "--dry-run",
+                "--platform",
+                "aws-eb",
+            ]
+        )
         assert args.project_name == "myapp"
         assert args.python_version == "3.13"
         assert args.django_version == "5.3"

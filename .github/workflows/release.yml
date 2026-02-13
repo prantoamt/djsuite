@@ -1,15 +1,35 @@
 name: Release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
   id-token: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event.head_commit.message }}" != *"[skip ci]"* ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping: commit message contains [skip ci]"
+          fi
+
   compute-version:
+    needs: [guard]
+    if: needs.guard.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.version.outputs.tag }}
@@ -53,6 +73,8 @@ jobs:
           echo "Bump: ${BUMP} | ${LATEST} -> ${NEXT}"
 
   test:
+    needs: [guard]
+    if: needs.guard.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -119,13 +141,14 @@ jobs:
             --generate-notes \
             --title "${{ needs.compute-version.outputs.tag }}"
 
-      - name: Update version files and CHANGELOG
+      - name: Update version files and CHANGELOG via PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ needs.compute-version.outputs.tag }}"
           VERSION="${{ needs.compute-version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
+          BRANCH="release/${TAG}"
 
           # Update version in source
           sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
@@ -143,10 +166,16 @@ jobs:
             printf "# Changelog\n\n%s\n" "$ENTRY" > CHANGELOG.md
           fi
 
-          # Commit and push
+          # Create branch and PR
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
           git add pyproject.toml src/djsuite/__init__.py CHANGELOG.md
-          git diff --cached --quiet && exit 0
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "release: ${TAG} [skip ci]"
-          git push
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "release: ${TAG}" \
+            --body "Automated version bump and changelog update for ${TAG}." \
+            --base main \
+            --head "$BRANCH"

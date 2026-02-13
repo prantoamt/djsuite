@@ -1,13 +1,11 @@
 """Tests for the generator module."""
 
 import json
-import os
 import stat
 
 import pytest
 
-from djsuite.generator import generate, dry_run
-from djsuite.manifest import Platform
+from djsuite.generator import dry_run, generate
 
 
 @pytest.fixture

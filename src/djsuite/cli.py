@@ -2,7 +2,6 @@
 
 import argparse
 import getpass
-import sys
 
 from djsuite import __version__
 from djsuite.manifest import Platform, UpdateGroup, get_manifest
@@ -91,6 +90,7 @@ def main(argv=None):
 
     if update_groups:
         from djsuite.updater import run_update
+
         return run_update(
             project_dir=args.project_dir,
             groups=update_groups,
@@ -112,9 +112,11 @@ def main(argv=None):
 
     if args.dry_run:
         from djsuite.generator import dry_run
+
         dry_run(context, args.output_dir, platform)
         return 0
 
     from djsuite.generator import generate
+
     generate(context, args.output_dir, platform)
     return 0

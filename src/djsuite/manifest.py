@@ -40,14 +40,12 @@ COMMON_MANIFEST = {
     "pre-commit-config.yaml": (".pre-commit-config.yaml", UpdateGroup.ROOT),
     "manage.py": ("manage.py", UpdateGroup.ROOT),
     "conftest.py.j2": ("conftest.py", UpdateGroup.ROOT),
-
     # CI (.github/)
     "github/copilot-instructions.md.j2": (".github/copilot-instructions.md", UpdateGroup.CI),
     "github/PULL_REQUEST_TEMPLATE.md": (".github/PULL_REQUEST_TEMPLATE.md", UpdateGroup.CI),
     "github/release.yml": (".github/release.yml", UpdateGroup.CI),
     "github/workflows/ci.yml.j2": (".github/workflows/ci.yml", UpdateGroup.CI),
     "github/workflows/auto-label.yml": (".github/workflows/auto-label.yml", UpdateGroup.CI),
-
     # main/ app
     "main/__init__.py": ("main/__init__.py", UpdateGroup.APP_MAIN),
     "main/apps.py": ("main/apps.py", UpdateGroup.APP_MAIN),
@@ -56,7 +54,6 @@ COMMON_MANIFEST = {
     "main/settings.py.j2": ("main/settings.py", UpdateGroup.APP_MAIN),
     "main/urls.py": ("main/urls.py", UpdateGroup.APP_MAIN),
     "main/wsgi.py": ("main/wsgi.py", UpdateGroup.APP_MAIN),
-
     # base/ app
     "base/__init__.py": ("base/__init__.py", UpdateGroup.APP_BASE),
     "base/apps.py": ("base/apps.py", UpdateGroup.APP_BASE),
@@ -84,19 +81,21 @@ PLATFORM_MANIFESTS = {
         "release.sh": ("release.sh", UpdateGroup.DOCKER),
         "supervisord_app.conf": ("supervisord_app.conf", UpdateGroup.DOCKER),
         "supervisord_worker_beat.conf": ("supervisord_worker_beat.conf", UpdateGroup.DOCKER),
-
         # CD (.github/)
         "github/workflows/dev-cd.yml.j2": (".github/workflows/dev-cd.yml", UpdateGroup.CI),
         "github/workflows/prod-cd.yml.j2": (".github/workflows/prod-cd.yml", UpdateGroup.CI),
-
         # Platform (.platform/)
         "platform/hooks/postdeploy/01_release.sh": (".platform/hooks/postdeploy/01_release.sh", UpdateGroup.INFRA),
-        "platform/hooks/postdeploy/02_setup_log_whisperer.sh": (".platform/hooks/postdeploy/02_setup_log_whisperer.sh", UpdateGroup.INFRA),
-        "platform/hooks/predeploy/01_cleanup_log_whisperer_cron.sh": (".platform/hooks/predeploy/01_cleanup_log_whisperer_cron.sh", UpdateGroup.INFRA),
-
+        "platform/hooks/postdeploy/02_setup_log_whisperer.sh": (
+            ".platform/hooks/postdeploy/02_setup_log_whisperer.sh",
+            UpdateGroup.INFRA,
+        ),
+        "platform/hooks/predeploy/01_cleanup_log_whisperer_cron.sh": (
+            ".platform/hooks/predeploy/01_cleanup_log_whisperer_cron.sh",
+            UpdateGroup.INFRA,
+        ),
         # Infra
         "infra/Dockerrun.aws.json.tmpl": ("infra/Dockerrun.aws.json.tmpl", UpdateGroup.INFRA),
-
         # Nginx
         "nginx/celery.conf": ("nginx/celery.conf", UpdateGroup.INFRA),
         "nginx/default.conf": ("nginx/default.conf", UpdateGroup.INFRA),
@@ -126,11 +125,7 @@ def get_manifest(platform):
 def files_for_groups(groups, platform):
     """Return manifest entries for the given set of UpdateGroups."""
     manifest = get_manifest(platform)
-    return {
-        key: (out, grp)
-        for key, (out, grp) in manifest.items()
-        if grp in groups
-    }
+    return {key: (out, grp) for key, (out, grp) in manifest.items() if grp in groups}
 
 
 def all_output_paths(platform):
