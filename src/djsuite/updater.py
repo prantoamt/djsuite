@@ -26,7 +26,14 @@ def _load_context(project_dir):
         config = json.load(f)
 
     # Extract context keys
-    context_keys = ["project_name", "python_version", "django_version", "drf_version", "author", "description"]
+    context_keys = [
+        "project_name",
+        "python_version",
+        "django_version",
+        "drf_version",
+        "author",
+        "description",
+    ]
     context = {k: config.get(k, "") for k in context_keys}
 
     # Read platform, defaulting to aws-eb for backwards compatibility

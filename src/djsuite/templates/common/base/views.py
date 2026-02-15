@@ -26,14 +26,19 @@ class HealthCheckView(APIView):
         description="Returns 200 if the service and database are healthy, 503 otherwise.",
         responses={
             HTTP_200_OK: OpenApiResponse(description="Service is healthy."),
-            HTTP_503_SERVICE_UNAVAILABLE: OpenApiResponse(description="Service is unhealthy."),
+            HTTP_503_SERVICE_UNAVAILABLE: OpenApiResponse(
+                description="Service is unhealthy."
+            ),
         },
     )
     def get(self, request, *args, **kwargs):
         try:
             connection.ensure_connection()
         except Exception:
-            return Response({"status": "unhealthy", "db": "unreachable"}, status=HTTP_503_SERVICE_UNAVAILABLE)
+            return Response(
+                {"status": "unhealthy", "db": "unreachable"},
+                status=HTTP_503_SERVICE_UNAVAILABLE,
+            )
         return Response({"status": "healthy"}, status=HTTP_200_OK)
 
 

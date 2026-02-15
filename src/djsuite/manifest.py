@@ -44,11 +44,20 @@ COMMON_MANIFEST = {
     "tests/__init__.py": ("tests/__init__.py", UpdateGroup.ROOT),
     "tests/test_health.py": ("tests/test_health.py", UpdateGroup.ROOT),
     # CI (.github/)
-    "github/copilot-instructions.md.j2": (".github/copilot-instructions.md", UpdateGroup.CI),
-    "github/PULL_REQUEST_TEMPLATE.md": (".github/PULL_REQUEST_TEMPLATE.md", UpdateGroup.CI),
+    "github/copilot-instructions.md.j2": (
+        ".github/copilot-instructions.md",
+        UpdateGroup.CI,
+    ),
+    "github/PULL_REQUEST_TEMPLATE.md": (
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        UpdateGroup.CI,
+    ),
     "github/release.yml": (".github/release.yml", UpdateGroup.CI),
     "github/workflows/ci.yml.j2": (".github/workflows/ci.yml", UpdateGroup.CI),
-    "github/workflows/auto-label.yml": (".github/workflows/auto-label.yml", UpdateGroup.CI),
+    "github/workflows/auto-label.yml": (
+        ".github/workflows/auto-label.yml",
+        UpdateGroup.CI,
+    ),
     # main/ app
     "main/__init__.py": ("main/__init__.py", UpdateGroup.APP_MAIN),
     "main/apps.py": ("main/apps.py", UpdateGroup.APP_MAIN),
@@ -66,13 +75,31 @@ COMMON_MANIFEST = {
     "base/urls.py": ("base/urls.py", UpdateGroup.APP_BASE),
     "base/views.py": ("base/views.py", UpdateGroup.APP_BASE),
     "base/constants/__init__.py": ("base/constants/__init__.py", UpdateGroup.APP_BASE),
-    "base/constants/celery_task_status.py": ("base/constants/celery_task_status.py", UpdateGroup.APP_BASE),
-    "base/constants/magic_numbers.py": ("base/constants/magic_numbers.py", UpdateGroup.APP_BASE),
-    "base/constants/model_viewset.py": ("base/constants/model_viewset.py", UpdateGroup.APP_BASE),
-    "base/management/commands/createsu.py": ("base/management/commands/createsu.py", UpdateGroup.APP_BASE),
-    "base/migrations/__init__.py": ("base/migrations/__init__.py", UpdateGroup.APP_BASE),
+    "base/constants/celery_task_status.py": (
+        "base/constants/celery_task_status.py",
+        UpdateGroup.APP_BASE,
+    ),
+    "base/constants/magic_numbers.py": (
+        "base/constants/magic_numbers.py",
+        UpdateGroup.APP_BASE,
+    ),
+    "base/constants/model_viewset.py": (
+        "base/constants/model_viewset.py",
+        UpdateGroup.APP_BASE,
+    ),
+    "base/management/commands/createsu.py": (
+        "base/management/commands/createsu.py",
+        UpdateGroup.APP_BASE,
+    ),
+    "base/migrations/__init__.py": (
+        "base/migrations/__init__.py",
+        UpdateGroup.APP_BASE,
+    ),
     "base/services/__init__.py": ("base/services/__init__.py", UpdateGroup.APP_BASE),
-    "base/services/orphan_service.py": ("base/services/orphan_service.py", UpdateGroup.APP_BASE),
+    "base/services/orphan_service.py": (
+        "base/services/orphan_service.py",
+        UpdateGroup.APP_BASE,
+    ),
     "base/tests/__init__.py": ("base/tests/__init__.py", UpdateGroup.APP_BASE),
 }
 
@@ -83,12 +110,24 @@ PLATFORM_MANIFESTS = {
         "entrypoint.sh": ("entrypoint.sh", UpdateGroup.DOCKER),
         "release.sh": ("release.sh", UpdateGroup.DOCKER),
         "supervisord_app.conf": ("supervisord_app.conf", UpdateGroup.DOCKER),
-        "supervisord_worker_beat.conf": ("supervisord_worker_beat.conf", UpdateGroup.DOCKER),
+        "supervisord_worker_beat.conf": (
+            "supervisord_worker_beat.conf",
+            UpdateGroup.DOCKER,
+        ),
         # CD (.github/)
-        "github/workflows/dev-cd.yml.j2": (".github/workflows/dev-cd.yml", UpdateGroup.CI),
-        "github/workflows/prod-cd.yml.j2": (".github/workflows/prod-cd.yml", UpdateGroup.CI),
+        "github/workflows/dev-cd.yml.j2": (
+            ".github/workflows/dev-cd.yml",
+            UpdateGroup.CI,
+        ),
+        "github/workflows/prod-cd.yml.j2": (
+            ".github/workflows/prod-cd.yml",
+            UpdateGroup.CI,
+        ),
         # Platform (.platform/)
-        "platform/hooks/postdeploy/01_release.sh": (".platform/hooks/postdeploy/01_release.sh", UpdateGroup.INFRA),
+        "platform/hooks/postdeploy/01_release.sh": (
+            ".platform/hooks/postdeploy/01_release.sh",
+            UpdateGroup.INFRA,
+        ),
         "platform/hooks/postdeploy/02_setup_log_whisperer.sh": (
             ".platform/hooks/postdeploy/02_setup_log_whisperer.sh",
             UpdateGroup.INFRA,
@@ -98,7 +137,10 @@ PLATFORM_MANIFESTS = {
             UpdateGroup.INFRA,
         ),
         # Infra
-        "infra/Dockerrun.aws.json.tmpl": ("infra/Dockerrun.aws.json.tmpl", UpdateGroup.INFRA),
+        "infra/Dockerrun.aws.json.tmpl": (
+            "infra/Dockerrun.aws.json.tmpl",
+            UpdateGroup.INFRA,
+        ),
         # Nginx
         "nginx/celery.conf": ("nginx/celery.conf", UpdateGroup.INFRA),
         "nginx/default.conf": ("nginx/default.conf", UpdateGroup.INFRA),

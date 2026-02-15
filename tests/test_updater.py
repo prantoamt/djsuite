@@ -121,7 +121,12 @@ class TestRunUpdate:
 
         result = run_update(
             str(generated_project),
-            groups={UpdateGroup.CI, UpdateGroup.DOCKER, UpdateGroup.INFRA, UpdateGroup.ROOT},
+            groups={
+                UpdateGroup.CI,
+                UpdateGroup.DOCKER,
+                UpdateGroup.INFRA,
+                UpdateGroup.ROOT,
+            },
             no_backup=True,
         )
         assert result == 0

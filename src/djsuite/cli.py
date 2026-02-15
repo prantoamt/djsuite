@@ -11,9 +11,7 @@ def _valid_project_name(value):
     """Validate and normalize project name to a valid Python identifier."""
     name = value.replace("-", "_")
     if not name.isidentifier():
-        raise argparse.ArgumentTypeError(
-            f"{value!r} is not a valid Python identifier (after replacing hyphens with underscores)"
-        )
+        raise argparse.ArgumentTypeError(f"{value!r} is not a valid Python identifier (after replacing hyphens with underscores)")
     return name
 
 
@@ -34,10 +32,18 @@ def build_parser():
     parser.add_argument("--python-version", default="3.12", help="Python version (default: 3.12)")
     parser.add_argument("--django-version", default="5.2", help="Django version (default: 5.2)")
     parser.add_argument("--drf-version", default="3.16", help="DRF version (default: 3.16)")
-    parser.add_argument("--author", default=getpass.getuser(), help="Author name (default: system username)")
+    parser.add_argument(
+        "--author",
+        default=getpass.getuser(),
+        help="Author name (default: system username)",
+    )
     parser.add_argument("--description", default="", help="Project description")
     parser.add_argument("--output-dir", default=".", help="Output directory (default: current dir)")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be created without writing files")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be created without writing files",
+    )
     parser.add_argument(
         "--platform",
         choices=[p.value for p in Platform],
@@ -50,11 +56,19 @@ def build_parser():
     parser.add_argument("--update-docker", action="store_true", help="Update Docker files")
     parser.add_argument("--update-infra", action="store_true", help="Update infrastructure files")
     parser.add_argument("--update-all", action="store_true", help="Update all updatable files")
-    parser.add_argument("--project-dir", default=".", help="Project directory for updates (default: current dir)")
+    parser.add_argument(
+        "--project-dir",
+        default=".",
+        help="Project directory for updates (default: current dir)",
+    )
     parser.add_argument("--no-backup", action="store_true", help="Skip backup before updating")
 
     # Info
-    parser.add_argument("--list-files", action="store_true", help="List all files that would be generated")
+    parser.add_argument(
+        "--list-files",
+        action="store_true",
+        help="List all files that would be generated",
+    )
 
     return parser
 
@@ -63,7 +77,12 @@ def _get_update_groups(args):
     """Return the set of UpdateGroups to update based on CLI flags."""
     groups = set()
     if args.update_all:
-        groups = {UpdateGroup.CI, UpdateGroup.DOCKER, UpdateGroup.INFRA, UpdateGroup.ROOT}
+        groups = {
+            UpdateGroup.CI,
+            UpdateGroup.DOCKER,
+            UpdateGroup.INFRA,
+            UpdateGroup.ROOT,
+        }
     else:
         if args.update_ci:
             groups.add(UpdateGroup.CI)
