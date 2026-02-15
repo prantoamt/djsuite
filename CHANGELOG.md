@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.6 (2026-02-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Bug Fixes
+* feat: createsu command updated and code formated by @prantoamt in https://github.com/prantoamt/djsuite/pull/14
+
+
+**Full Changelog**: https://github.com/prantoamt/djsuite/compare/v0.0.5...v0.0.6
+
 ## v0.0.5 (2026-02-13)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
