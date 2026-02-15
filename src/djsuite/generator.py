@@ -33,9 +33,7 @@ def generate(context, output_dir=".", platform=None):
         full_path.write_text(content, encoding="utf-8")
         # Set executable bit on .sh files
         if output_path.endswith(".sh"):
-            full_path.chmod(
-                full_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-            )
+            full_path.chmod(full_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         print(f"  created {output_path}")
 
     # Write .djsuite.json config file
@@ -60,13 +58,9 @@ def generate(context, output_dir=".", platform=None):
         if result.returncode == 0:
             print("  pdm.lock created")
         else:
-            print(
-                f"  pdm lock failed (you can run it manually): {result.stderr.strip()}"
-            )
+            print(f"  pdm lock failed (you can run it manually): {result.stderr.strip()}")
     else:
-        print(
-            "\nNote: pdm not found — run 'pdm lock' after installing PDM to pin dependencies."
-        )
+        print("\nNote: pdm not found — run 'pdm lock' after installing PDM to pin dependencies.")
 
     print(f"\nProject {project_name} created at {project_path.resolve()}")
     print("\nNext steps:")
@@ -93,9 +87,7 @@ def dry_run(context, output_dir=".", platform=None):
     print(f"Would create project at: {project_path.resolve()}\n")
     print("Files that would be generated:")
 
-    for _key, (output_path, _group) in sorted(
-        manifest.items(), key=lambda item: item[1][0]
-    ):
+    for _key, (output_path, _group) in sorted(manifest.items(), key=lambda item: item[1][0]):
         print(f"  {output_path}")
 
     print("  .djsuite.json")

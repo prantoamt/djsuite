@@ -21,9 +21,7 @@ class Platform(Enum):
         for member in cls:
             if member.value == value:
                 return member
-        raise ValueError(
-            f"Unknown platform: {value!r}. Choose from: {[m.value for m in cls]}"
-        )
+        raise ValueError(f"Unknown platform: {value!r}. Choose from: {[m.value for m in cls]}")
 
 
 # Mapping: template_path -> (output_path, UpdateGroup)
@@ -178,7 +176,4 @@ def files_for_groups(groups, platform):
 def all_output_paths(platform):
     """Return all output paths in order."""
     manifest = get_manifest(platform)
-    return [
-        out
-        for _key, (out, _grp) in sorted(manifest.items(), key=lambda item: item[1][0])
-    ]
+    return [out for _key, (out, _grp) in sorted(manifest.items(), key=lambda item: item[1][0])]

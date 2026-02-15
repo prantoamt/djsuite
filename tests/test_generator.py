@@ -69,16 +69,8 @@ class TestGenerate:
     def test_creates_platform_hooks(self, tmp_path, context):
         generate(context, str(tmp_path))
         project_dir = tmp_path / "testproject"
-        assert (
-            project_dir / ".platform" / "hooks" / "postdeploy" / "01_release.sh"
-        ).exists()
-        assert (
-            project_dir
-            / ".platform"
-            / "hooks"
-            / "predeploy"
-            / "01_cleanup_log_whisperer_cron.sh"
-        ).exists()
+        assert (project_dir / ".platform" / "hooks" / "postdeploy" / "01_release.sh").exists()
+        assert (project_dir / ".platform" / "hooks" / "predeploy" / "01_cleanup_log_whisperer_cron.sh").exists()
 
     def test_template_substitution_settings(self, tmp_path, context):
         generate(context, str(tmp_path))
@@ -149,9 +141,7 @@ class TestGenerate:
 
     def test_template_substitution_cd(self, tmp_path, context):
         generate(context, str(tmp_path))
-        dev_cd = (
-            tmp_path / "testproject" / ".github" / "workflows" / "dev-cd.yml"
-        ).read_text()
+        dev_cd = (tmp_path / "testproject" / ".github" / "workflows" / "dev-cd.yml").read_text()
         assert "ECR_REPO: testproject" in dev_cd
         assert "testproject-${VERSION_LABEL}.zip" in dev_cd
         assert "comvado" not in dev_cd.lower()

@@ -54,11 +54,7 @@ class TestRenderTemplate:
     def test_ci_template_raw_escaping(self, context):
         """Verify GitHub Actions ${{ }} expressions survive rendering."""
         content = render_template("common", "github/workflows/ci.yml.j2", context)
-        assert (
-            "${{ secrets." in content
-            or "${{secrets." in content
-            or "${{ github." in content
-        )
+        assert "${{ secrets." in content or "${{secrets." in content or "${{ github." in content
         assert "myapp:" in content
 
 
@@ -86,6 +82,4 @@ class TestRenderAll:
                 continue
             # Strip GitHub Actions expressions (${{ ... }}) before checking
             stripped = re.sub(r"\$\{\{.*?\}\}", "", content)
-            assert (
-                "{{ " not in stripped and "{%" not in stripped
-            ), f"Unrendered Jinja2 in {path}"
+            assert "{{ " not in stripped and "{%" not in stripped, f"Unrendered Jinja2 in {path}"
